@@ -2,12 +2,8 @@
 #include <cmath>
 #include <math.h>
 #include <conio.h>
+#include <fstream>
 using  namespace std;
-
-struct Section {
-    double x0;
-    double x1;
-};
 
 class funcs {
     int height;
@@ -17,88 +13,113 @@ class funcs {
     double step;
     double *arrX;
     double *arrY;
-    short sign;
+    char **arr;
+    int min;
+    int max;
+    double MIN;
+    double MAX;
+    double *arrYTemp;
+
+    void MaxAndMin(int &min, int &max, double &MIN, double &MAX, double Y, int i){
+        if(i==0) {
+            MAX = Y;
+            MIN = Y;
+        }
+        if(Y> MAX){
+            MAX = Y;
+            max = i;
+        }
+        if(Y < MIN){
+            MIN = Y;
+            min = i;
+        }
+    }
+
+    void deformationY(double * arrYTemp, int MAX){
+        for(int i=0; i<column; i++){
+            arrY[i] = round(arrYTemp[i] * (height-1)/MAX);
+        }
+    }
 public:
     funcs(int column, int height, double x0, double x1) {
         this->column = column+1;
         this->height = height+1;
         this->x0 = x0;
         this->x1 = x1;
+
+        //шаг по x от x0 до x1
         step = (x1 - x0) / column;
         step = round(step * 10000) / 10000;
+        //шаг
+
+        //отрезок от x0 до x1
         arrX = new double[ this->column];
         arrX[0] = x0;
         arrX[ this->column-1] = x1;
-        for (int i = 1; i <  this->column; i++) {
+        //
+
+        //массив с индексами в конечном графике
+        arrY = new double[column];
+        //
+
+        //массив с вычисленными точками по Y
+        arrYTemp = new double[column];
+        //
+
+        for (int i = 1; i < this->column-1; i++) {
             arrX[i] = arrX[i - 1] + step;
         }
-        if(column>height){
-            sign = -1;
-        }else if(column<height){
-            sign = 1;
-        }else{
-            sign = 0;
-        }
-        for (int i = 0; i <  this->column; i++) {
-            cout<<arrX[i]<<" ";
-        }
-        cout<<"\n";
     }
-
     ~funcs() {
         delete[] arrX;
         delete[] arrY;
+        delete[] arrYTemp;
     }
-    int strainPercentage(){
-        return 0;
-    };
 
-    void deformationY(double * arrYTemp, int MAX){
-        arrY = new double[column];
-        for(int i=0; i<column; i++){
-            arrY[i] = arrYTemp[i] * height/MAX;
-        }
-    }
+
+
     void powerFunctionTwo() {
-        int min;
-        int max;
-        double MIN;
-        double MAX;
-        double *arrYTemp = new double[column];
-        arrYTemp[0] = arrX[0] * arrX[0];
-        MAX = arrYTemp[0];
-        MIN = arrYTemp[0];
-        for (int i = 1; i < column; i++) {
+        for (int i = 0; i < column; i++) {
             arrYTemp[i] = arrX[i] * arrX[i];
-            if(arrYTemp[i] > MAX){
-                MAX = arrYTemp[i];
-                max = i;
-            }
-            if(arrYTemp[i] < MIN){
-                MIN = arrYTemp[i];
-                min = i;
-            }
+            MaxAndMin(min, max, MIN, MAX,  arrYTemp[i], i );
         }
-        for(int i=0; i<column; i++){
-            cout<<arrYTemp[i]<<" ";
-        }
-        cout<<"\n";
         deformationY(arrYTemp, MAX);
     };
 
 
     void printXY() {
-        for(int i=0; i<column; i++){
-            cout<<arrY[i]<<" ";
+        arr=new char*[height];
+        for(int i=0; i<height; i++){
+            arr[i] = new char[column];
+            for(int j=0; j<column; j++){
+                arr[i][j]= ' ';
+            }
         }
-        cout<<"\n";
+        for(int i=0; i<column; i++){
+//            for(int j=0; j<=int(arrY[i]); j++){
+//                arr[j][i]='#';
+//            }
+            arr[int(arrY[i])][i]='#';
+        }
+        ofstream fout;
+        fout.open("file.txt");
+        for(int i=height-1; i>=0; i--){
+            for(int j=column-1; j>=0; j--){
+                fout <<arr[i][j];
+            }
+            fout<<"\n";
+        }
+        fout.close();
     }
 };
 
 int main() {
-    funcs a(10, 5, -5, 5);
+    funcs a(10, 20, -5, 5);
     a.powerFunctionTwo();
     a.printXY();
 
     return 0;
 }
+
+
+
