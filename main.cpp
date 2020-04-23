@@ -49,11 +49,11 @@ class funcs {
             } else if (Y < 0) {
                 heightN++;
             }
-
-        if(i==0) {
+        if(MAX!=MAX||MIN!=MIN){
             MAX = Y;
             MIN = Y;
         }
+
         if(Y> MAX){
             MAX = Y;
             max = i;
@@ -64,7 +64,7 @@ class funcs {
         }
     }
 
-    void deformationY( vector<double> arrYTemp, int MAX){
+    void deformationY( vector<double> arrYTemp){
         while(heightN+heightP<height){
             if(heightN!=0){
                 heightN++;
@@ -83,12 +83,12 @@ class funcs {
                 heightP--;
             }
         }
-
         int k=0;
         int j=0;
+        if(MAX==0){MAX++;}
         for(int i=0; i<column; i++){
-            if(arrYTemp[i]>=0) {arrYPositive[k] = floor(arrYTemp[i] * (heightP) / abs(MAX));while(arrYPositive[k]>heightP){arrYPositive[k]--;}arrXYP[k++] =i;  }
-            if(arrYTemp[i]<0) {arrYNegative[j] = floor(arrYTemp[i] * (heightN) / abs(MIN))*-1;while(arrYNegative[j] >heightN){arrYNegative[j]--;}arrXYN[j++] =i;}
+            if(arrYTemp[i]>=0) {arrYPositive[k] = round(arrYTemp[i] * (heightP) / abs(MAX));while(arrYPositive[k]>heightP){arrYPositive[k]--;}arrXYP[k++] =i;  }
+            if(arrYTemp[i]<0) {arrYNegative[j] = round(arrYTemp[i] * (heightN) / abs(MIN))*-1;while(arrYNegative[j] >heightN){arrYNegative[j]--;}arrXYN[j++] =i;}
         }
         arrXYP.resize(k);
         arrYPositive.resize(k);
@@ -137,17 +137,15 @@ public:
         }
         cout<<"\n";
     }
-
-    void rootFunctionTwo() {
+    void LogFunctionTwo() {
         clear();
         for (int i = 0; i < column; i++) {
-            arrYTemp[i] = arrX[i];
+            arrYTemp[i] = -arrX[i]*log(arrX[i]);
             MaxAndMin(min, max, MIN, MAX,  arrYTemp[i], i );
         }
-        cout<<"--------------------------\n";
         Test(arrX, "arrX");
         Test(arrYTemp,"arrYTemp");
-        deformationY(arrYTemp, MAX);
+        deformationY(arrYTemp);
         Test(arrYPositive, "arrYPositive");
         Test(arrYNegative, "arrYNegative");
         Test(arrXYP, "arrXYP");
@@ -156,6 +154,16 @@ public:
         cout<<"MIN: "<<MIN<<"\n";
         cout<<"P: "<< heightP<<"\n";
         cout<<"N: "<< heightN<<"\n";
+    };
+    void rootFunctionTwo() {
+        clear();
+        for (int i = 0; i < column; i++) {
+            arrYTemp[i] = arrX[i];
+            MaxAndMin(min, max, MIN, MAX,  arrYTemp[i], i );
+        }
+
+        deformationY(arrYTemp);
+
 
     };
     void powerFunctionTwo() {
@@ -164,17 +172,8 @@ public:
             arrYTemp[i] =arrX[i]*arrX[i];
             MaxAndMin(min, max, MIN, MAX,  arrYTemp[i], i );
         }
-        Test(arrX, "arrX");
-        Test(arrYTemp,"arrYTemp");
-        deformationY(arrYTemp, MAX);
-        Test(arrYPositive, "arrYPositive");
-        Test(arrYNegative, "arrYNegative");
-        Test(arrXYP, "arrXYP");
-        Test(arrXYN, "arrXYN");
-        cout<<"MAX: "<<MAX<<"\n";
-        cout<<"MIN: "<<MIN<<"\n";
-        cout<<"P: "<< heightP<<"\n";
-        cout<<"N: "<< heightN<<"\n";
+
+        deformationY(arrYTemp);
     };
 
     void Print(){
@@ -230,9 +229,8 @@ public:
 };
 
 int main() {
-    funcs a(10, 10, -5, 5);
-    a.powerFunctionTwo();
-    a.rootFunctionTwo();
+    funcs a(100, 40, 0, 2);
+    a.LogFunctionTwo();
     a.Print();
     return 0;
 }
